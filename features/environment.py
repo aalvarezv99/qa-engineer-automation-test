@@ -6,7 +6,7 @@ from lib.pages.homepage import HomePage
 
 def before_all(context):
     driver = set_selenium_driver(context)
-    driver.set_page_load_timeout('0.5')
+    driver.set_page_load_timeout(5)
     driver.maximize_window()
 
     context.web_driver = driver
@@ -61,7 +61,8 @@ def set_local_driver() -> webdriver:
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--window-size=1920x1080")
     chrome_options.add_argument("--lang=en-US")
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
     chrome_options.add_experimental_option('useAutomationExtension', False)
     return webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
 

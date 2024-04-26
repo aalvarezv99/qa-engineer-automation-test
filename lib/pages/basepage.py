@@ -2,6 +2,7 @@ from typing import List
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 from lib.helpers.generalhelpers import transformation_to_element_name
+from lib.components.generalcomponents import GeneralComponents
 
 
 class BasePage(object):
@@ -39,7 +40,7 @@ class BasePage(object):
 
     def get_current_url(self):
         return self.web_driver.current_url
-    
+
     def find_element(self, selector) -> WebElement:
         """
         find a page element in the DOM
@@ -93,12 +94,24 @@ class BasePage(object):
         return self.web_driver.title
 
     def are_element_presents(self, list_element, context):
+        elements_not_found = []
         validation_list = []
         elements = transformation_to_element_name(list_element)
         for element in elements:
             selector = self.context.current_page.webElements.__dict__.get(element)
-            if selector is None:
-                raise TypeError(f' The {element} selector name is not created')
-            web_element = context.browser.find_elements(selector)
-            validation_list.append(len(web_element) > 0)
+            if selector:
+                web_element = context.browser.find_elements(selector)
+                validation_list.append(len(web_element) > 0)
+            else:
+                elements_not_found.append(element)
+        if elements_not_found:
+            raise TypeError(f'The {", ".join(elements_not_found)} selectors name is not created')
         return validation_list
+
+    def get_selector_by_text(self, text):
+        element_selector = self.context.current_page.webElements.get_element_by_text(text)
+        return element_selector
+
+    def validate_web_element_is_present(self, web_element):
+        is_present = GeneralComponents.wait_until_element_is_present(self.context, web_element)
+        return is_present

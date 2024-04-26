@@ -1,9 +1,9 @@
 from behave import then, use_step_matcher
-from hamcrest import equal_to, assert_that, only_contains
+from hamcrest import equal_to, assert_that, only_contains, is_not, none
 
 from lib.components.generalcomponents import GeneralComponents
 from lib.helpers.generalhelpers import validate_text, transform_validation, transformation_helper, join_words, \
-    split_and_replace_string, transformation_to_element_name
+    split_and_replace_string
 
 use_step_matcher("re")
 
@@ -60,3 +60,14 @@ def step_impl(context, element_name, element_type, expression):
     assertion = transform_validation(expression)
     button_enabled = GeneralComponents.is_enabled_in_page(context, element_name)
     return assert_that(button_enabled, equal_to(assertion))
+
+
+@then('The user navigates through the "(?P<menu>.*)" and validates the "(?P<text>.*)"')
+def step_impl(context, menu, text):
+    selector_menu = context.browser.get_selector_by_text(menu)
+    menu_web_element = context.browser.find_element(selector_menu)
+    GeneralComponents.wait_until_element_is_clickable(context, menu_web_element)
+    menu_web_element.click()
+    selector_text = context.browser.get_selector_by_text(text)
+    is_present = context.browser.validate_web_element_is_present(selector_text)
+    return assert_that(is_present, is_not(none()), "The page did not load correctly")
